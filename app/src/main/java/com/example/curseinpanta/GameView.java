@@ -31,6 +31,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread      thread;
     private WorldRenderer   renderer;
 
+    private CoinListener coinListener;
+    private int lastCoins;                        // <- NEW
+
+    public void setCoinListener(CoinListener cl) { this.coinListener = cl; }
+
     public GameView(Context ctx, AttributeSet attrs) {
         super(ctx, attrs);
         init(ctx);
@@ -47,7 +52,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // --- car & input -------------------------------------------------
         Paint carPaint = new Paint(); carPaint.setColor(Color.RED);
-        car   = new Car(100, 500, 100, 50, carPaint);
+        car = new Car(ctx, 100, 500, 100, 50, carPaint);
         input = new InputController(car);
 
         // --- driver-name paint ------------------------------------------
@@ -61,6 +66,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // --- renderer (now takes Context, Car, screenH, namePaint) -------
         renderer = new WorldRenderer(ctx, car, screenH, namePaint);
+        lastCoins = com.example.curseinpanta.utils.CoinManager.getCoins(ctx);
 
         // --- game loop thread -------------------------------------------
         thread = new GameThread(getHolder(), this);
@@ -88,6 +94,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void update(float dt) {
         car.update(dt, getWidth(), getHeight());
         renderer.update(getWidth());
+
+        // --- NEW: coin delta detection ---
+        int current = com.example.curseinpanta.utils.CoinManager.getCoins(getContext());
+        if (current != lastCoins && coinListener != null) {
+            lastCoins = current;
+            // Ensure callback runs on UI thread
+            post(() -> coinListener.onCoinTotalChanged(current));
+        }
     }
 
     /** Called each frame by GameThread */
@@ -107,4 +121,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void pause()  { thread.setPaused(true);  }
     public void resume() { thread.setPaused(false); }
+    public interface CoinListener {
+        void onCoinTotalChanged(int newTotal);
+    }
 }
+

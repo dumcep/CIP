@@ -16,7 +16,7 @@
 
         <!-- Launcher -->
         <activity
-            android:name=".MainMenuActivity"
+            android:name=".ui.MainMenuActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -26,17 +26,17 @@
 
         <!-- Game screen -->
         <activity
-            android:name=".GameActivity"
+            android:name=".ui.GameActivity"
             android:exported="false" />
 
         <!-- Shop screen -->
         <activity
-            android:name=".ShopActivity"
+            android:name=".ui.ShopActivity"
             android:exported="false" />
 
         <!-- (Optional) Future screens -->
-        <activity android:name=".SettingsActivity" android:exported="false"/>
-        <activity android:name=".CreditsActivity"  android:exported="false"/>
+        <activity android:name=".ui.SettingsActivity" android:exported="false"/>
+        <activity android:name=".ui.CreditsActivity"  android:exported="false"/>
 
     </application>
 </manifest>

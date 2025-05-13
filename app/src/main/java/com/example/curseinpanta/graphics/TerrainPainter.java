@@ -6,13 +6,14 @@ import android.graphics.Path;
 import android.graphics.Color;
 
 public class TerrainPainter {
+    private float roughness = 0.5f;
     private static final float BASE_LINE = 220f;   // px from bottom
     private static final float A1 = 220f, L1 = 900f;
     private static final float A2 =  90f, L2 = 450f;
 
     private final Paint backPaint, frontPaint, stripPaint;
     private final Path  path = new Path();
-
+    public void setRoughness(float r) { roughness = r; }
     public TerrainPainter() {
         backPaint  = makePaint("#388E3C"); // dark green
         frontPaint = makePaint("#4CAF50"); // light green
@@ -26,8 +27,10 @@ public class TerrainPainter {
     }
 
     private float yAt(float worldX, float groundY) {
-        float h1 = (float)(Math.sin(worldX / L1)       * A1);
-        float h2 = (float)(Math.sin(worldX / L2 + 1.3f)* A2);
+        float amp1 = A1 * roughness;      // roughness 0→flat, 1→full height
+        float amp2 = A2 * roughness;
+        float h1 = (float)(Math.sin(worldX / L1) * amp1);
+        float h2 = (float)(Math.sin(worldX / L2 + 1.3f) * amp2);
         return groundY - (h1 + h2);
     }
 

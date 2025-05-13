@@ -13,11 +13,11 @@
     <!-- Coin display -->
     <TextView
         android:id="@+id/tvCoins"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="137dp"
+        android:layout_height="83dp"
         android:layout_gravity="end|top"
         android:padding="16dp"
-        android:textSize="18sp"
+        android:text="Coins: 0"
         android:textColor="#FFD700"
-        android:text="Coins: 0"/>
+        android:textSize="18sp" />
 </FrameLayout>

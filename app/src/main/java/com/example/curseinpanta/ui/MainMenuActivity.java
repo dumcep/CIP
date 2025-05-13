@@ -1,15 +1,15 @@
-package com.example.curseinpanta;
+package com.example.curseinpanta.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.view.animation.LinearInterpolator;
-import com.example.curseinpanta.ui.AnimatedGradient;
+
+import com.example.curseinpanta.R;
 import com.example.curseinpanta.utils.CoinManager;
 
 public class MainMenuActivity extends Activity {
@@ -26,7 +26,7 @@ public class MainMenuActivity extends Activity {
         PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("scaleY", 0.90f, 1.10f);
 
         ObjectAnimator pulse = ObjectAnimator.ofPropertyValuesHolder(tvTitle, pvhX, pvhY);
-        pulse.setDuration(1200);            // 1.2 s for one grow-shrink cycle
+        pulse.setDuration(850);            // 1.2 s for one grow-shrink cycle
         pulse.setInterpolator(new LinearInterpolator());
         pulse.setRepeatCount(ObjectAnimator.INFINITE);
         pulse.setRepeatMode(ObjectAnimator.REVERSE);

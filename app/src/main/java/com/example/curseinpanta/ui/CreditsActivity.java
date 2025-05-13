@@ -1,7 +1,9 @@
-package com.example.curseinpanta;
+package com.example.curseinpanta.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.example.curseinpanta.R;
 
 public class CreditsActivity extends Activity {
     @Override

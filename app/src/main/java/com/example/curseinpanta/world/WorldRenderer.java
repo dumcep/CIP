@@ -40,6 +40,7 @@ public class WorldRenderer {
         this.coinField       = new CoinField(terrainPainter, ctx);
     }
     public void update(int screenW) {
+        refreshSettings();
         camera.update(car.getX(), screenW);
 
         // --- NEW: set car Y to terrain height each frame ---
@@ -74,5 +75,10 @@ public class WorldRenderer {
         // keep car on ground when rotation/resizing
         float groundY = terrainPainter.getGroundY(h);
         car.setY(groundY - car.getHeight());
+    }
+    private void refreshSettings() {
+        Context ctx = this.ctx;
+        terrainPainter.setRoughness(SettingsManager.getRoughness(ctx));
+        bgPainter.setNight(SettingsManager.isNight(ctx));
     }
 }
