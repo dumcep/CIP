@@ -45,13 +45,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         // wire up surface callbacks
         getHolder().addCallback(this);
 
-        // create car & input controller
-        Paint carPaint = new Paint();
-        carPaint.setColor(Color.RED);
+        // --- car & input -------------------------------------------------
+        Paint carPaint = new Paint(); carPaint.setColor(Color.RED);
         car   = new Car(100, 500, 100, 50, carPaint);
         input = new InputController(car);
 
-        // build name paint
+        // --- driver-name paint ------------------------------------------
         Paint namePaint = new Paint();
         namePaint.setColor(Color.BLACK);
         namePaint.setTextAlign(Paint.Align.CENTER);
@@ -59,9 +58,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // new renderer class handles all drawing
         int screenH = getResources().getDisplayMetrics().heightPixels;
-        renderer = new WorldRenderer(car, screenH, namePaint);
 
-        // game loop thread
+        // --- renderer (now takes Context, Car, screenH, namePaint) -------
+        renderer = new WorldRenderer(ctx, car, screenH, namePaint);
+
+        // --- game loop thread -------------------------------------------
         thread = new GameThread(getHolder(), this);
     }
 
