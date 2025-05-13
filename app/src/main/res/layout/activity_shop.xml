@@ -1,0 +1,49 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tvCoins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:textColor="#FFD700"
+            android:text="Coins: 0"/>
+
+        <Button
+            android:id="@+id/btnUpgradeAccel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Upgrade Acceleration"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/btnUpgradeBrake"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Upgrade Brake"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/btnUpgradeSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Upgrade Top Speed"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/btnUnlockBg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Unlock Background"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</FrameLayout>
