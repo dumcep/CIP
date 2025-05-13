@@ -2,7 +2,7 @@ package com.example.curseinpanta.world;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-
+import android.util.DisplayMetrics;
 import com.example.curseinpanta.entities.Car;
 import com.example.curseinpanta.graphics.BackgroundPainter;
 import com.example.curseinpanta.graphics.Camera;
@@ -16,8 +16,9 @@ public class WorldRenderer {
     private final Camera            camera;
     private final Car               car;
     private final Paint             namePaint;
-
-    public WorldRenderer(Car car, int screenHeight, Paint namePaint) {
+    private final int screenHeight;
+    public WorldRenderer(Car car, int screenH, Paint namePaint) {
+        this.screenHeight = screenH;
         this.car   = car;
         this.camera= new Camera();
         this.terrainPainter = new TerrainPainter();
@@ -27,6 +28,10 @@ public class WorldRenderer {
 
     public void update(int screenW) {
         camera.update(car.getX(), screenW);
+
+        // --- NEW: set car Y to terrain height each frame ---
+        float groundY = terrainPainter.getGroundYAt(car.getX(), screenHeight);
+        car.setY(groundY - car.getHeight());
     }
 
     public void draw(Canvas c, String driverName) {

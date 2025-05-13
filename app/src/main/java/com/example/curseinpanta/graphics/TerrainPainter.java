@@ -6,7 +6,7 @@ import android.graphics.Path;
 import android.graphics.Color;
 
 public class TerrainPainter {
-    private static final float BASE_LINE = 100f;   // px from bottom
+    private static final float BASE_LINE = 220f;   // px from bottom
     private static final float A1 = 220f, L1 = 900f;
     private static final float A2 =  90f, L2 = 450f;
 
@@ -51,12 +51,17 @@ public class TerrainPainter {
         path.lineTo(w, h); path.close();
         c.drawPath(path, frontPaint);
 
-        // --- ground strip (covers tiny gaps) ---
-        c.drawRect(0, groundY, w, h, stripPaint);
+        // --- ground strip (covers tiny gaps) --- Commented
+//        c.drawRect(0, groundY, w, h, stripPaint);
     }
 
     /** helps GameView adjust car Y on resize */
     public float getGroundY(int screenHeight) {
         return screenHeight - BASE_LINE;
+    }
+    public float getGroundYAt(float worldX, int screenHeight) {
+        float baseline = screenHeight - BASE_LINE;
+        // mirror the same two-wave formula
+        return yAt(worldX, baseline);
     }
 }
