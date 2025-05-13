@@ -61,10 +61,11 @@ public class Car {
             x = 0;
             velocityX = 0;
         }
-        if (x + width > screenWidth) {
-            x = screenWidth - width;
-            velocityX = 0;
-        }
+        //Boundaries
+//        if (x + width > screenWidth) {
+//            x = screenWidth - width;
+//            velocityX = 0;
+//        }
     }
 
     public void draw(Canvas canvas) {

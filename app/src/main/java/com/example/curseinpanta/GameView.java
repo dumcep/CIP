@@ -38,10 +38,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private float cameraX = 0;
 
     private static final float BASE_LINE = PhysicsEngine.GROUND_HEIGHT;
-    private static final float WAVE1_AMP = 150f;
-    private static final float WAVE1_LEN = 600f;
-    private static final float WAVE2_AMP = 75f;
-    private static final float WAVE2_LEN = 300f;
+    private static final float WAVE1_AMP = 220f;
+    private static final float WAVE1_LEN = 900f;
+    private static final float WAVE2_AMP = 90f;
+    private static final float WAVE2_LEN = 450f;
 
     /**
      * @param worldX   X position in the infinite world

@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.curseinpanta.ui.AnimatedGradient;
 import com.example.curseinpanta.utils.CoinManager;
 
 public class MainMenuActivity extends Activity {
@@ -15,9 +16,8 @@ public class MainMenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        // background
-        ImageView bg = findViewById(R.id.backgroundImage);
-        bg.setImageResource(R.drawable.bg_main_menu);
+        //  NEW: animated gradient background
+        AnimatedGradient.applyTo(findViewById(R.id.menuRoot));
 
         // coin display
         TextView tvCoins = findViewById(R.id.tvCoins);
