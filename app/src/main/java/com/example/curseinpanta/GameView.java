@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.graphics.LinearGradient;
+import android.graphics.Path;
+import android.graphics.Shader;
 
 import androidx.annotation.NonNull;
 
@@ -21,7 +24,9 @@ import com.example.curseinpanta.utils.SettingsManager;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = "GameView";
-
+    private Paint skyPaint;
+    private Paint hillPaint1, hillPaint2;
+    private Path  hillPath;
     private Car car;
     private GameThread gameThread;
     private InputController inputController;
@@ -29,6 +34,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Paint groundPaint;
     private Paint uiPaint;
     private Paint textPaint;
+    private Path terrainPath;
+    private float cameraX = 0;
+
+    private static final float BASE_LINE = PhysicsEngine.GROUND_HEIGHT;
+    private static final float WAVE1_AMP = 150f;
+    private static final float WAVE1_LEN = 600f;
+    private static final float WAVE2_AMP = 75f;
+    private static final float WAVE2_LEN = 300f;
+
+    /**
+     * @param worldX   X position in the infinite world
+     * @param groundY  base Y coordinate where hills start
+     * @return pixel Y of terrain at that worldX
+     */
+    private float getHillYAt(float worldX, float groundY) {
+        // combine two sine-waves for variety
+        float h1 = (float)(Math.sin(worldX / WAVE1_LEN) * WAVE1_AMP);
+        float h2 = (float)(Math.sin(worldX / WAVE2_LEN + 1.3) * WAVE2_AMP);
+        return groundY - (h1 + h2);
+    }
+
 
     // 1) XML constructor
     public GameView(Context context, AttributeSet attrs) {
@@ -44,6 +70,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     // common setup
     private void init(Context context) {
+        terrainPath = new Path();
+
         // holder & callback
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
@@ -69,6 +97,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // game loop thread
         gameThread = new GameThread(holder, this);
+
+        // Sky gradient: top→bottom
+        skyPaint = new Paint();
+        skyPaint.setShader(new LinearGradient(
+                0, 0,
+                0, getResources().getDisplayMetrics().heightPixels,
+                Color.parseColor("#87CEEB"),   // light sky blue
+                Color.parseColor("#E0FFFF"),   // pale turquoise horizon
+                Shader.TileMode.CLAMP
+        ));
+
+        // Two hill colors for layering
+        hillPaint1 = new Paint();
+        hillPaint1.setColor(Color.parseColor("#4CAF50"));  // green
+        hillPaint1.setStyle(Paint.Style.FILL);
+
+        hillPaint2 = new Paint();
+        hillPaint2.setColor(Color.parseColor("#388E3C"));  // darker green
+        hillPaint2.setStyle(Paint.Style.FILL);
+
+        hillPath = new Path();
     }
 
     @Override
@@ -104,26 +153,60 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update(float deltaTime) {
         car.update(deltaTime, getWidth(), getHeight());
+
+        // center the camera a bit behind the car's x
+        float targetCamX = car.getX() - (getWidth() * 0.3f);
+        cameraX = Math.max(0, targetCamX);
     }
 
+
     public void drawGame(Canvas canvas) {
-        // background
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
+        float groundY = h - BASE_LINE;
+
+        // 1) Static background
         int bgRes = SettingsManager.getBackgroundResId(getContext());
-        Bitmap bmp = BitmapFactory.decodeResource(getResources(), bgRes);
-        Bitmap scaled = Bitmap.createScaledBitmap(
-                bmp, canvas.getWidth(), canvas.getHeight(), true);
-        canvas.drawBitmap(scaled, 0, 0, null);
+        Bitmap bgBmp = BitmapFactory.decodeResource(getResources(), bgRes);
+        Bitmap bgScaled = Bitmap.createScaledBitmap(bgBmp, w, h, true);
+        canvas.drawBitmap(bgScaled, 0, 0, null);
 
-        // ground
-        float top = canvas.getHeight() - PhysicsEngine.GROUND_HEIGHT;
-        canvas.drawRect(0, top, canvas.getWidth(), canvas.getHeight(), groundPaint);
+        // 2) Back‐layer hills (darker) for some depth
+        terrainPath.reset();
+        terrainPath.moveTo(0, h);
+        terrainPath.lineTo(0, getHillYAt(cameraX + 0, groundY));
+        for (int sx = 20; sx <= w + 20; sx += 20) {
+            float y = getHillYAt(cameraX + sx, groundY);
+            terrainPath.lineTo(sx, y);
+        }
+        terrainPath.lineTo(w, h);
+        terrainPath.close();
+        canvas.drawPath(terrainPath, hillPaint2);
 
-        // car
+        // 3) Front‐layer hills (lighter)
+        terrainPath.reset();
+        terrainPath.moveTo(0, h);
+        terrainPath.lineTo(0, getHillYAt(cameraX + 0, groundY + 40)); // shift up a bit
+        for (int sx = 20; sx <= w + 20; sx += 20) {
+            float y = getHillYAt(cameraX + sx, groundY + 40);
+            terrainPath.lineTo(sx, y);
+        }
+        terrainPath.lineTo(w, h);
+        terrainPath.close();
+        canvas.drawPath(terrainPath, hillPaint1);
+
+        // 4) (Optional) ground strip
+        canvas.drawRect(0, groundY, w, h, groundPaint);
+
+        // 5) Car (translate world so camera follows)
+        canvas.save();
+        canvas.translate(-cameraX, 0);
         car.draw(canvas);
+        canvas.restore();
 
-        // driver name
+        // 6) Driver name in screen‐space
         String name = SettingsManager.getDriverName(getContext());
-        float textX = car.getX() + car.getWidth()  / 2f;
+        float textX = (car.getX() - cameraX) + car.getWidth()/2f;
         float textY = car.getY() - 16f;
         canvas.drawText(name, textX, textY, textPaint);
     }
@@ -143,3 +226,4 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         gameThread.setPaused(false);
     }
 }
+
