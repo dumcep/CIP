@@ -2,23 +2,31 @@ package com.example.curseinpanta.utils;
 
 import android.content.Context;
 
-public class CoinManager {
-    private static final String PREFS_NAME = "game_prefs";
-    private static final String KEY_COINS  = "coins";
+import com.example.curseinpanta.data.DbHolder;
+import com.example.curseinpanta.data.PlayerDao;
+import com.example.curseinpanta.data.PlayerStats;
 
+/** Thin wrapper around Room so the rest of the game never touches SQL directly. */
+public final class CoinManager {
+
+    private CoinManager() {}                         // util class; no instances
+
+    private static PlayerDao dao(Context ctx) {
+        return DbHolder.get(ctx).playerDao();
+    }
+
+    /** Current permanent coin balance. */
     public static int getCoins(Context ctx) {
-        return ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getInt(KEY_COINS, 0);
+        PlayerStats s = dao(ctx).getPlayer();
+        return (s == null) ? 0 : s.coins;
     }
-
-    public static void setCoins(Context ctx, int amount) {
-        ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putInt(KEY_COINS, amount)
-                .apply();
-    }
-
     public static void addCoins(Context ctx, int delta) {
-        setCoins(ctx, getCoins(ctx) + delta);
+        PlayerDao d = dao(ctx);
+        PlayerStats s = d.getPlayer();
+        if (s == null) {                      // first call on fresh install
+            s = new PlayerStats();            // id = 1 row
+        }
+        s.coins = Math.max(0, s.coins + delta);
+        d.insert(s);                          // REPLACE because id is primary key
     }
 }

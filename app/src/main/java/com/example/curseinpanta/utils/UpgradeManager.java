@@ -61,14 +61,16 @@ public final class UpgradeManager {
         return lvl==0 ? 1f : table[lvl-1];
     }
     private static boolean tryBuyLevel(Context c, String key,
-                                       int[] priceTable, int maxLevels){
-        int lvl = get(c).getInt(key,0);
-        if(lvl>=maxLevels) return false;
-        int price = priceTable[lvl];
-        if(CoinManager.getCoins(c) < price) return false;
+                                       int[] priceTable, int maxLevels) {
 
-        CoinManager.addCoins(c, -price);
-        get(c).edit().putInt(key, lvl+1).apply();
+        int lvl = get(c).getInt(key, 0);
+        if (lvl >= maxLevels) return false;
+
+        int price = priceTable[lvl];
+        if (CoinManager.getCoins(c) < price) return false;
+
+        CoinManager.addCoins(c, -price);        // ← use c, not ctx
+        get(c).edit().putInt(key, lvl + 1).apply();
         return true;
     }
 }

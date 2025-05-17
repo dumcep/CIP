@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.example.curseinpanta.R;
 import com.example.curseinpanta.GameConfig;          // ← correct package
+import com.example.curseinpanta.graphics.AnimatedGradient;
 import com.example.curseinpanta.utils.CoinManager;
 import com.example.curseinpanta.utils.UpgradeManager;
 

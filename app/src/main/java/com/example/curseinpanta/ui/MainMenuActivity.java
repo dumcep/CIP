@@ -9,7 +9,12 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.view.animation.LinearInterpolator;
 
+import com.example.curseinpanta.GameActivity;
 import com.example.curseinpanta.R;
+import com.example.curseinpanta.data.DbHolder;
+import com.example.curseinpanta.data.PlayerDao;
+import com.example.curseinpanta.data.PlayerStats;
+import com.example.curseinpanta.graphics.AnimatedGradient;
 import com.example.curseinpanta.utils.CoinManager;
 
 public class MainMenuActivity extends Activity {
@@ -60,6 +65,16 @@ public class MainMenuActivity extends Activity {
         btnCredits.setOnClickListener(v ->
                 startActivity(new Intent(this, CreditsActivity.class))
         );
+        // --- bootstrap DB row if missing ----
+        PlayerDao dao = DbHolder.get(this).playerDao();
+        if (dao.getPlayer() == null) {
+            PlayerStats s = new PlayerStats();           // id=1 row
+            // migrate old prefs (optional) -----------------------
+            int oldCoins = getSharedPreferences("game_prefs", MODE_PRIVATE)
+                    .getInt("coins", 0);
+            s.coins = oldCoins;
+            dao.insert(s);
+    }
     }
 
     @Override

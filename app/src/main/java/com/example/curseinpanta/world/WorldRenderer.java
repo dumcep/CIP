@@ -26,7 +26,8 @@ public class WorldRenderer {
     private final int screenHeight;
 
 
-    public WorldRenderer(Context ctx, Car car, int  screenH, Paint namePaint) {
+    public WorldRenderer(Context ctx, Car car, int  screenH, Paint namePaint,
+                         CoinField.CoinPickupListener pickupListener) {
 
         this.ctx          = ctx;           // store for CoinManager
         this.car          = car;
@@ -37,7 +38,7 @@ public class WorldRenderer {
         this.terrainPainter  = new TerrainPainter();
         this.bgPainter       = new BackgroundPainter(screenH);
         this.coinPainter     = new CoinPainter();
-        this.coinField       = new CoinField(terrainPainter, ctx);
+        coinField  = new CoinField(terrainPainter, ctx, pickupListener);
     }
     public void update(int screenW) {
         refreshSettings();

@@ -26,7 +26,7 @@
 
         <!-- Game screen -->
         <activity
-            android:name=".ui.GameActivity"
+            android:name=".GameActivity"
             android:exported="false" />
 
         <!-- Shop screen -->

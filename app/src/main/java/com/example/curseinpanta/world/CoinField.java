@@ -12,17 +12,23 @@ import com.example.curseinpanta.GameConfig;     // ← fixed import
 import com.example.curseinpanta.utils.CoinManager;
 
 public class CoinField {
+    public interface CoinPickupListener { void onCoinPicked(); }
     private final ArrayList<Coin> coins = new ArrayList<>();
     private final Random rnd = new Random();
     private final TerrainPainter terrain;
     private final Context ctx;
 
     private static final float SPAWN_INTERVAL = 500f;   // px world
-    private float nextSpawnX = 400f;
+    private float nextSpawnX = 400f; //Coin Spawn
 
-    public CoinField(TerrainPainter terrain, Context ctx) {
+    private final CoinPickupListener pickupListener;
+
+    public CoinField(TerrainPainter terrain,
+                     Context ctx,
+                     CoinPickupListener lsnr) {
         this.terrain  = terrain;
         this.ctx      = ctx;
+        this.pickupListener = lsnr;
     }
 
     /** Keep coins a bit ahead of the camera */
@@ -38,6 +44,7 @@ public class CoinField {
 
     /** Collision + collection */
     public void checkCollect(float carX, float carY, float carW, float carH) {
+        CoinManager.addCoins(ctx, GameConfig.COIN_VALUE);
         Iterator<Coin> it = coins.iterator();
         while (it.hasNext()) {
             Coin c = it.next();

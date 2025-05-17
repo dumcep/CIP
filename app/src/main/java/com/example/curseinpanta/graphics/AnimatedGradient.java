@@ -1,4 +1,4 @@
-package com.example.curseinpanta.ui;
+package com.example.curseinpanta.graphics;
 
 import android.animation.ValueAnimator;
 import android.graphics.Color;

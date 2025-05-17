@@ -45,7 +45,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         super(ctx);
         init(ctx);
     }
-
+    public interface CoinListener {
+        void onCoinPicked();
+    }
     private void init(Context ctx) {
         // wire up surface callbacks
         getHolder().addCallback(this);
@@ -65,7 +67,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int screenH = getResources().getDisplayMetrics().heightPixels;
 
         // --- renderer (now takes Context, Car, screenH, namePaint) -------
-        renderer = new WorldRenderer(ctx, car, screenH, namePaint);
+        renderer = new WorldRenderer(
+                ctx,
+                car,
+                screenH,
+                namePaint,
+                () -> {           // CoinPickupListener
+                    if (coinListener != null) {
+                        coinListener.onCoinPicked();
+                    }
+                });
         lastCoins = com.example.curseinpanta.utils.CoinManager.getCoins(ctx);
 
         // --- game loop thread -------------------------------------------
@@ -94,14 +105,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void update(float dt) {
         car.update(dt, getWidth(), getHeight());
         renderer.update(getWidth());
-
-        // --- NEW: coin delta detection ---
-        int current = com.example.curseinpanta.utils.CoinManager.getCoins(getContext());
-        if (current != lastCoins && coinListener != null) {
-            lastCoins = current;
-            // Ensure callback runs on UI thread
-            post(() -> coinListener.onCoinTotalChanged(current));
-        }
     }
 
     /** Called each frame by GameThread */
@@ -121,8 +124,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void pause()  { thread.setPaused(true);  }
     public void resume() { thread.setPaused(false); }
-    public interface CoinListener {
-        void onCoinTotalChanged(int newTotal);
-    }
+
 }
 
