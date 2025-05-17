@@ -28,7 +28,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     // dropped 'final' so we can assign in init()
     private Car             car;
     private InputController input;
-    private GameThread      thread;
+    private GameThread gameThread;
     private WorldRenderer   renderer;
 
     private CoinListener coinListener;
@@ -50,6 +50,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         void onCoinTotalChanged(int newTotal);
     }
     private void init(Context ctx) {
+        gameThread = new GameThread(getHolder(), this);
         // wire up surface callbacks
         getHolder().addCallback(this);
 
@@ -81,13 +82,28 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         lastCoins = com.example.curseinpanta.utils.CoinManager.getCoins(ctx);
 
         // --- game loop thread -------------------------------------------
-        thread = new GameThread(getHolder(), this);
+        gameThread = new GameThread(getHolder(), this);
     }
 
     @Override public void surfaceCreated(@NonNull SurfaceHolder h) {
-        thread.setRunning(true);
-        thread.setPaused(false);
-        thread.start();
+        if (gameThread != null && gameThread.isAlive()) {
+            return;
+        }
+        gameThread = new GameThread(getHolder(), this);
+        gameThread.setRunning(true);
+        gameThread.setPaused(false);
+        gameThread.start();
+    }
+    public void stopGame() {
+        if (gameThread != null) {
+            gameThread.setRunning(false);
+            try {
+                gameThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            gameThread = null;
+        }
     }
 
     @Override public void surfaceChanged(@NonNull SurfaceHolder h, int f, int w, int hgt) {
@@ -95,9 +111,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     @Override public void surfaceDestroyed(@NonNull SurfaceHolder h) {
-        thread.setRunning(false);
+        gameThread.setRunning(false);
         while (true) {
-            try { thread.join(); break; }
+            try { gameThread.join(); break; }
             catch (InterruptedException ignored) {}
         }
     }
@@ -123,8 +139,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         return input.onTouchEvent(ev, getWidth());
     }
 
-    public void pause()  { thread.setPaused(true);  }
-    public void resume() { thread.setPaused(false); }
+    public void pause()  { gameThread.setPaused(true);  }
+    public void resume() { gameThread.setPaused(false); }
 
 }
 

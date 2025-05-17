@@ -1,27 +1,29 @@
 package com.example.curseinpanta.data;
 
 import android.content.Context;
+
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = { PlayerStats.class }, version = 1)
+@Database(entities = {PlayerStats.class}, version = 1)
 public abstract class GameDatabase extends RoomDatabase {
 
     public abstract PlayerDao playerDao();
 
-    // singleton helper
+    // Singleton instance
     private static volatile GameDatabase INSTANCE;
 
-    public static GameDatabase get(Context ctx) {
+    public static GameDatabase get(Context context) {
         if (INSTANCE == null) {
             synchronized (GameDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(
-                                    ctx.getApplicationContext(),
+                                    context.getApplicationContext(),
                                     GameDatabase.class,
                                     "game_db"
-                            ).allowMainThreadQueries()   // fine for single small table
+                            )
+                            .allowMainThreadQueries() // OK for small apps, not recommended for production
                             .build();
                 }
             }

@@ -17,34 +17,48 @@ import com.example.curseinpanta.data.PlayerStats;
 import com.example.curseinpanta.graphics.AnimatedGradient;
 import com.example.curseinpanta.utils.CoinManager;
 
+
+
 public class MainMenuActivity extends Activity {
+
+    private PlayerDao dao;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_menu);
+        setContentView(R.layout.activity_main_menu); // Only once!
 
-        // --- Minecraft-style pulsing title ---
+        // --- animated gradient background ---
+        AnimatedGradient.applyTo(findViewById(R.id.menuRoot));
+
+        // --- title animation ---
         TextView tvTitle = findViewById(R.id.tvTitle);
-
-        // scale 0.90 → 1.10 and back, forever
         PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("scaleX", 0.90f, 1.10f);
         PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("scaleY", 0.90f, 1.10f);
-
         ObjectAnimator pulse = ObjectAnimator.ofPropertyValuesHolder(tvTitle, pvhX, pvhY);
-        pulse.setDuration(850);            // 1.2 s for one grow-shrink cycle
+        pulse.setDuration(850);
         pulse.setInterpolator(new LinearInterpolator());
         pulse.setRepeatCount(ObjectAnimator.INFINITE);
         pulse.setRepeatMode(ObjectAnimator.REVERSE);
         pulse.start();
 
-        //  NEW: animated gradient background
-        AnimatedGradient.applyTo(findViewById(R.id.menuRoot));
+        // --- Initialize DAO ---
+        dao = DbHolder.get(this).playerDao();
 
-        // coin display
+        // --- Bootstrap DB if missing ---
+        PlayerStats stats = dao.getPlayer();
+        if (stats == null) {
+            stats = new PlayerStats();
+            stats.coins = getSharedPreferences("game_prefs", MODE_PRIVATE).getInt("coins", 0);
+            stats.highScore = 0;
+            dao.insert(stats);
+        }
+
+        // --- Coin display ---
         TextView tvCoins = findViewById(R.id.tvCoins);
         tvCoins.setText("Coins: " + CoinManager.getCoins(this));
 
-        // buttons
+        // --- Buttons ---
         Button btnPlay     = findViewById(R.id.btnPlay);
         Button btnShop     = findViewById(R.id.btnShop);
         Button btnSettings = findViewById(R.id.btnSettings);
@@ -65,22 +79,12 @@ public class MainMenuActivity extends Activity {
         btnCredits.setOnClickListener(v ->
                 startActivity(new Intent(this, CreditsActivity.class))
         );
-        // --- bootstrap DB row if missing ----
-        PlayerDao dao = DbHolder.get(this).playerDao();
-        if (dao.getPlayer() == null) {
-            PlayerStats s = new PlayerStats();           // id=1 row
-            // migrate old prefs (optional) -----------------------
-            int oldCoins = getSharedPreferences("game_prefs", MODE_PRIVATE)
-                    .getInt("coins", 0);
-            s.coins = oldCoins;
-            dao.insert(s);
-    }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // refresh coins if you returned from shop
+        // Refresh coins (e.g., after visiting shop)
         TextView tvCoins = findViewById(R.id.tvCoins);
         tvCoins.setText("Coins: " + CoinManager.getCoins(this));
     }
