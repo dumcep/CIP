@@ -47,6 +47,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
     public interface CoinListener {
         void onCoinPicked();
+        void onCoinTotalChanged(int newTotal);
     }
     private void init(Context ctx) {
         // wire up surface callbacks
